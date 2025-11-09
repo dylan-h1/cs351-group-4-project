@@ -1,9 +1,12 @@
+import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class BankServer {
+public class BankServer implements Runnable {
 
     ServerSocket serverSocket;
     ExecutorService clientPool;
@@ -13,11 +16,42 @@ public class BankServer {
     ScheduledExecutorService scheduler;
     double interestRate;
     long interestPeriod;
+    private boolean isRunning = false;
 
-    void start() {
+    public BankServer(int port) throws IOException {
+        serverSocket = new ServerSocket(port);
+        clientPool = Executors.newFixedThreadPool(20);
+
+    }
+
+    @Override
+    public void run() {
+        isRunning = true;
+        System.out.println("Bank server started");
+        try{
+            while (isRunning) {
+                try{
+                    Socket socket = serverSocket.accept();
+                    System.out.println("New client connected");
+                    clientPool.submit(new ClientHandler(socket));
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        } finally {
+            stop();
+        }
     }
 
     void stop() {
+        isRunning = false;
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     void notifyUser(String username, String message) {
@@ -30,5 +64,14 @@ public class BankServer {
     }
 
     void loadData() {
+    }
+
+    public static void main(String[] args) {
+        try {
+            BankServer bankServer = new BankServer(9000);
+            bankServer.run();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
