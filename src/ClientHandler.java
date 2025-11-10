@@ -1,12 +1,32 @@
 import java.net.Socket;
+import java.util.Scanner;
 
-public class ClientHandler {
+public class ClientHandler implements Runnable {
 
     Socket socket;
     BankServer server;
     String username;
 
-    void run() {
+    ClientHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+        String msg = "";
+        try {
+            Scanner scanner = new Scanner(socket.getInputStream());
+            while (scanner.hasNextLine()) {
+                msg = scanner.nextLine();
+                System.out.println(msg);
+                if(msg.equals("exit")){
+                    System.out.println("Client disconnected");
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     void handleCommand(String cmd) {
