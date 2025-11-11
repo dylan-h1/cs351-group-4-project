@@ -7,18 +7,75 @@ public class Account {
     double balance;
     ReentrantLock lock;
 
-    void deposit(double amount) {
+    public Account(String username, String password, double balance) {
+        this.username = username;
+        this.password = password;
+        this.balance = balance;
     }
 
-    boolean withdraw(double amount) {
-        return false;
+    public void deposit(double amount) {
+        lock.lock();
+        try {
+            balance = balance + amount;
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
-    boolean transferTo(Account target, double amount) {
-        return false;
+    public void withdraw(double amount) {
+        lock.lock();
+        try {
+            if (balance == 0){
+                System.out.println("There is nothing in this account to withdraw");
+            }
+            else if (amount <= balance) {
+                balance = balance - amount;
+            } else {
+                System.out.println("Insufficient funds to withdraw");
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
-    double getBalance() {
-        return 0;
+    public void transferTo(Account target, double amount) {
+        Account first = this;
+        Account second = target;
+        if ((first.username).compareTo(second.username) < 0) {
+            first = target;
+            second = this;
+        }
+
+        Account firstLock = first; //using two locks to prevent deadlocking
+        Account secondLock = second;
+
+        firstLock.lock.lock();
+        try {
+            secondLock.lock.lock();
+            try {
+                if (balance == 0) {
+                    System.out.println("There is nothing in this account to withdraw");
+                    return;
+                }
+                if (amount <= balance) {
+                    this.withdraw(amount);
+                    target.deposit(amount);
+                } else {
+                    System.out.println("Insufficient funds to transfer");
+                }
+
+            } finally {
+                secondLock.lock.unlock();
+            }
+
+        } finally{
+            firstLock.lock.unlock();
+        }
+
+    }
+
+    public double getBalance() {
+        return balance;
     }
 }
