@@ -8,20 +8,20 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class BankServer implements Runnable {
 
-    ServerSocket serverSocket;
-    ExecutorService clientPool;
-    ConcurrentHashMap<String, Account> accounts;
-    TransactionLedger ledger;
-    ConcurrentHashMap<String, ClientHandler> onlineUsers;
-    ScheduledExecutorService scheduler;
-    double interestRate;
-    long interestPeriod;
+    // To discuss if we should have all as private access, then access these through getters i.e. protected fields having getters
+    private ServerSocket serverSocket;
+    private ExecutorService clientPool;
+    protected ConcurrentHashMap<String, Account> accounts;
+    protected TransactionLedger transactionLedger;
+    protected ConcurrentHashMap<String, ClientHandler> onlineUsers;
+    private ScheduledExecutorService scheduler;
+    protected double interestRate;
+    protected long interestPeriod;
     private boolean isRunning = false;
 
     public BankServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         clientPool = Executors.newFixedThreadPool(20);
-
     }
 
     @Override
