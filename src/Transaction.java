@@ -24,4 +24,8 @@ public class Transaction {
 
     public String getFrom() { return from; }
     public String getTo() { return to; }
+
+    //added these getters for the test cases
+    public double getAmount() { return amount; }
+    public String getType() { return type; }
 }

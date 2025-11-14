@@ -7,8 +7,9 @@ public class ClientHandler implements Runnable {
     BankServer server;
     String username;
 
-    ClientHandler(Socket socket) {
+    ClientHandler(Socket socket, BankServer server) {
         this.socket = socket;
+        this.server = server;
     }
 
     @Override
@@ -25,7 +26,7 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error in ClientHandler: " + e.getMessage());
         }
     }
 

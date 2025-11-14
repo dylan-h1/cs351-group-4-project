@@ -1,4 +1,4 @@
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,49 +21,91 @@ public class BankServer implements Runnable {
     public BankServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         clientPool = Executors.newFixedThreadPool(20);
-
+        accounts = new ConcurrentHashMap<>();
+        ledger = new TransactionLedger();
+        loadData();
     }
 
     @Override
     public void run() {
         isRunning = true;
-        System.out.println("Bank server started");
+        System.out.println("Bank server started on port " + serverSocket.getLocalPort());
         try{
             while (isRunning) {
                 try{
                     Socket socket = serverSocket.accept();
                     System.out.println("New client connected");
-                    clientPool.submit(new ClientHandler(socket));
+                    clientPool.submit(new ClientHandler(socket, this));
                 } catch (IOException e){
-                    e.printStackTrace();
+                    System.out.println("Error accepting client connection: ");
                 }
             }
         } finally {
-            stop();
+            close();
         }
     }
 
-    void stop() {
+    public void close() {
         isRunning = false;
-        if (serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            System.out.println("Error closing server socket:");
+        }
+        if (clientPool != null) {
+            clientPool.shutdown();
+            saveData();
         }
     }
 
     void notifyUser(String username, String message) {
+        ClientHandler handler = onlineUsers.get(username);
+        if (handler != null) {
+            handler.sendMessage(message);
+        }
     }
 
     void applyInterest() {
     }
 
     void saveData() {
+        try{
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("accounts.dat"));
+            out.writeObject(accounts);
+            out.close();
+        } catch (IOException e) {
+            System.out.println("Error saving accounts data:");
+        }
+        try{
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("ledger.dat"));
+            out.writeObject(ledger);
+            out.close();
+        } catch (IOException e) {
+            System.out.println("Error saving ledger data:");
+        }
     }
 
     void loadData() {
+        File accountsFile = new File("accounts.dat");
+        if (accountsFile.exists()) {
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(accountsFile));
+                accounts = (ConcurrentHashMap<String, Account>) in.readObject();
+                in.close();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Error loading accounts data:");
+            }
+        }
+        File ledgerFile = new File("ledger.dat");
+        if (ledgerFile.exists()) {
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(ledgerFile));
+                ledger = (TransactionLedger) in.readObject();
+                in.close();
+            } catch (IOException | ClassNotFoundException e) {
+                System.out.println("Error loading ledger data:");
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -71,7 +113,7 @@ public class BankServer implements Runnable {
             BankServer bankServer = new BankServer(9000);
             bankServer.run();
         }catch (IOException e){
-            e.printStackTrace();
+            System.out.println("Error starting bank server:");
         }
     }
 }

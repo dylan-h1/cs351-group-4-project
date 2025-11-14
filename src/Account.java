@@ -5,7 +5,7 @@ public class Account {
     String username;
     String password;
     double balance;
-    ReentrantLock lock;
+    ReentrantLock lock = new ReentrantLock();
 
     public Account(String username, String password, double balance) {
         this.username = username;
