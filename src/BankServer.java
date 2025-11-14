@@ -8,21 +8,21 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class BankServer implements Runnable {
 
-    ServerSocket serverSocket;
-    ExecutorService clientPool;
-    ConcurrentHashMap<String, Account> accounts;
-    TransactionLedger ledger;
-    ConcurrentHashMap<String, ClientHandler> onlineUsers;
-    ScheduledExecutorService scheduler;
-    double interestRate;
-    long interestPeriod;
+    private ServerSocket serverSocket;
+    private ExecutorService clientPool;
+    protected ConcurrentHashMap<String, Account> accounts;
+    protected TransactionLedger transactionLedger;
+    protected ConcurrentHashMap<String, ClientHandler> onlineUsers;
+    private ScheduledExecutorService scheduler;
+    protected double interestRate;
+    protected long interestPeriod;
     private boolean isRunning = false;
 
     public BankServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
         clientPool = Executors.newFixedThreadPool(20);
         accounts = new ConcurrentHashMap<>();
-        ledger = new TransactionLedger();
+        transactionLedger = new TransactionLedger();
         loadData();
     }
 
@@ -37,24 +37,30 @@ public class BankServer implements Runnable {
                     System.out.println("New client connected");
                     clientPool.submit(new ClientHandler(socket, this));
                 } catch (IOException e){
-                    System.out.println("Error accepting client connection: ");
+                    if (isRunning) {
+                        e.printStackTrace();
+                    } else {
+                        System.out.println("Server shutting down.");
+                    }
                 }
             }
         } finally {
-            close();
+            stop();
         }
     }
 
-    public void close() {
+    void stop() {
         isRunning = false;
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            System.out.println("Error closing server socket:");
-        }
-        if (clientPool != null) {
-            clientPool.shutdown();
-            saveData();
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (clientPool != null) {
+                clientPool.shutdown();
+                saveData();
+            }
         }
     }
 
@@ -78,7 +84,7 @@ public class BankServer implements Runnable {
         }
         try{
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("ledger.dat"));
-            out.writeObject(ledger);
+            out.writeObject(transactionLedger);
             out.close();
         } catch (IOException e) {
             System.out.println("Error saving ledger data:");
@@ -100,7 +106,7 @@ public class BankServer implements Runnable {
         if (ledgerFile.exists()) {
             try {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(ledgerFile));
-                ledger = (TransactionLedger) in.readObject();
+                transactionLedger = (TransactionLedger) in.readObject();
                 in.close();
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Error loading ledger data:");
@@ -111,9 +117,14 @@ public class BankServer implements Runnable {
     public static void main(String[] args) {
         try {
             BankServer bankServer = new BankServer(9000);
-            bankServer.run();
-        }catch (IOException e){
-            System.out.println("Error starting bank server:");
+
+            Thread serverThread = new Thread(bankServer);
+            serverThread.start();
+
+            AdminMenu adminMenu = new AdminMenu(bankServer);
+            adminMenu.showMenu();
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 }
