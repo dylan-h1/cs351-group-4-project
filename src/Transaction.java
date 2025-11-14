@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Transaction {
+public class Transaction implements Serializable{
 
     private final String type;
     private final String from;

@@ -1,14 +1,13 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class BankServerLogicTest {
     private BankServer bankServer;
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (bankServer != null) {
-            bankServer.close();
+            bankServer.stop();
         }
     }
 

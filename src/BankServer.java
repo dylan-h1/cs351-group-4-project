@@ -1,10 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 public class BankServer implements Runnable {
 
@@ -23,6 +20,10 @@ public class BankServer implements Runnable {
         clientPool = Executors.newFixedThreadPool(20);
         accounts = new ConcurrentHashMap<>();
         transactionLedger = new TransactionLedger();
+        onlineUsers = new ConcurrentHashMap<>();
+        interestRate = 2.5;
+        interestPeriod = 60;
+        interestSchedule();
         loadData();
     }
 
@@ -59,22 +60,53 @@ public class BankServer implements Runnable {
             }
             if (clientPool != null) {
                 clientPool.shutdown();
-                saveData();
+            }
+            if (scheduler != null) {
+                scheduler.shutdown();
             }
         }
+        saveData();
     }
 
-    void notifyUser(String username, String message) {
+    public void notifyUser(String username, String message) {
         ClientHandler handler = onlineUsers.get(username);
         if (handler != null) {
             handler.sendMessage(message);
         }
     }
 
-    void applyInterest() {
+    public void interestSchedule() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+        }
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(
+                this::applyInterest,
+                interestPeriod,
+                interestPeriod,
+                TimeUnit.SECONDS
+                );
     }
 
-    void saveData() {
+    public void applyInterest() {
+        for (Account account : accounts.values()) {
+            double interest = account.getBalance() * interestRate / 100;
+            account.deposit(interest);
+            transactionLedger.add(
+                    "INTEREST",
+                    "BANK",
+                    account.username,
+                    interest
+            );
+            notifyUser(account.username,
+                    String.format(
+                            "Interest of %.2f applied to your account. New balance: %.2f",
+                            interest,
+                            account.getBalance()));
+        }
+    }
+
+    public void saveData() {
         try{
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("accounts.dat"));
             out.writeObject(accounts);
@@ -91,7 +123,7 @@ public class BankServer implements Runnable {
         }
     }
 
-    void loadData() {
+    public void loadData() {
         File accountsFile = new File("accounts.dat");
         if (accountsFile.exists()) {
             try {
