@@ -24,7 +24,7 @@ public class AdminMenu {
             System.out.println("5. Change interest rate");
             System.out.println("6. Change interest period");
             System.out.println("7. Shutdown server");
-            System.out.print("Select option: ");
+            System.out.print("\nSelect option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
@@ -57,20 +57,28 @@ public class AdminMenu {
     }
 
     private void viewOnlineUsers() {
-        Set<String> users = bankServer.onlineUsers.keySet();
-        for (String user : users) {
-            System.out.println(user);
+        if (bankServer.onlineUsers != null) {
+            Set<String> users = bankServer.onlineUsers.keySet();
+            for (String user : users) {
+                System.out.println(user);
+            }
+        } else {
+            System.out.println("No users currently online.");
         }
     }
 
     private void viewAllTransactions() {
-        List<Transaction> transactions = bankServer.transactionLedger.getAllTransactions();
-        for (Transaction transaction : transactions) {
-            System.out.println(transaction);
+        if (bankServer.transactionLedger != null) {
+            List<Transaction> transactions = bankServer.transactionLedger.getAllTransactions();
+            for (Transaction transaction : transactions) {
+                System.out.println(transaction);
+            }
+        } else {
+            System.out.println("No transactions available to view.");
         }
     }
 
-    // Need to add full input validation, discuss the standard of how we will do this across application
+    // Input validation required
     // Maybe worth adding an enum for type?
     private void adjustUserBalance() {
         System.out.print("Enter username you wish to adjust balance for: ");
@@ -106,8 +114,35 @@ public class AdminMenu {
         }
     }
 
+    // Input validation needed
     private void transferBetweenUsers() {
-        // Need to finish
+        System.out.print("Enter username you wish to transfer money from: ");
+        String fromUser = scanner.nextLine();
+
+        Account fromAccount = bankServer.accounts.get(fromUser);
+        if (fromAccount == null) {
+            System.out.println("User not found.");
+            return;
+        }
+
+        System.out.print("Enter username you wish to transfer money to: ");
+        String toUser = scanner.nextLine();
+
+        Account toAccount = bankServer.accounts.get(toUser);
+        if (toAccount == null) {
+            System.out.println("User not found.");
+            return;
+        }
+
+        System.out.print("Enter amount you wish to transfer from user '" + fromUser + "': ");
+        double amount = Double.parseDouble(scanner.nextLine());
+        if (amount <= 0) {
+            System.out.println("Amount must be greater than 0.");
+        }
+
+        fromAccount.transferTo(toAccount, amount);
+        bankServer.transactionLedger.add("ADD", fromUser, toUser, amount);
+        System.out.println("Transferred £" + amount + " to " + toUser + "'s account");
     }
 
     // Input validation required
