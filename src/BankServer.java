@@ -35,7 +35,11 @@ public class BankServer implements Runnable {
                     System.out.println("New client connected");
                     clientPool.submit(new ClientHandler(socket));
                 } catch (IOException e){
-                    e.printStackTrace();
+                    if (isRunning) {
+                        e.printStackTrace();
+                    } else {
+                        System.out.println("Server shutting down.");
+                    }
                 }
             }
         } finally {
@@ -69,8 +73,14 @@ public class BankServer implements Runnable {
     public static void main(String[] args) {
         try {
             BankServer bankServer = new BankServer(9000);
-            bankServer.run();
-        }catch (IOException e){
+
+            Thread serverThread = new Thread(bankServer);
+            serverThread.start();
+//            bankServer.run();
+
+            AdminMenu adminMenu = new AdminMenu(bankServer);
+            adminMenu.showMenu();
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
