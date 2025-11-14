@@ -2,13 +2,26 @@ import java.time.LocalDateTime;
 
 public class Transaction {
 
-    String type;
-    String from;
-    String to;
-    double amount;
-    LocalDateTime timestamp;
+    private final String type;
+    private final String from;
+    private final String to;
+    private final double amount;
+    private final LocalDateTime timestamp;
 
-    public String toString() {
-        return "TBD";
+    public Transaction(String type, String from, String to, double amount) {
+        this.type = type;
+        this.from = from;
+        this.to = to;
+        this.amount = amount;
+        this.timestamp = LocalDateTime.now();
     }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s: from=%s to=%s amount=£%.2f",
+                timestamp, type, from, to, amount);
+    }
+
+    public String getFrom() { return from; }
+    public String getTo() { return to; }
 }
