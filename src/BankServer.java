@@ -8,7 +8,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class BankServer implements Runnable {
 
-    // To discuss if we should have all as private access, then access these through getters i.e. protected fields having getters
     private ServerSocket serverSocket;
     private ExecutorService clientPool;
     protected ConcurrentHashMap<String, Account> accounts;
