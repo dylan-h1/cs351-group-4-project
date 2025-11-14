@@ -76,7 +76,6 @@ public class BankServer implements Runnable {
 
             Thread serverThread = new Thread(bankServer);
             serverThread.start();
-//            bankServer.run();
 
             AdminMenu adminMenu = new AdminMenu(bankServer);
             adminMenu.showMenu();
