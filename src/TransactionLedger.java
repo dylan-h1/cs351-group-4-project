@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TransactionLedger {
+public class TransactionLedger implements Serializable {
 
     private final List<Transaction> transactions = Collections.synchronizedList(new ArrayList<>());
 

@@ -56,7 +56,7 @@ public class AdminMenu {
         }
     }
 
-    private void viewOnlineUsers() {
+    public void viewOnlineUsers() {
         if (bankServer.onlineUsers != null) {
             Set<String> users = bankServer.onlineUsers.keySet();
             for (String user : users) {
@@ -149,6 +149,8 @@ public class AdminMenu {
     private void changeInterestRate() {
         System.out.print("Enter new interest rate (e.g. 5.5): ");
         bankServer.interestRate = Double.parseDouble(scanner.nextLine());
+        //restart interest schedule with new rate when changed
+        bankServer.interestSchedule();
     }
 
     // Input validation required

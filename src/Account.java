@@ -1,11 +1,12 @@
+import java.io.Serializable;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Account {
+public class Account implements Serializable {
 
     String username;
     String password;
     double balance;
-    ReentrantLock lock;
+    ReentrantLock lock = new ReentrantLock();
 
     public Account(String username, String password, double balance) {
         this.username = username;
@@ -78,4 +79,8 @@ public class Account {
     public double getBalance() {
         return balance;
     }
+
+    //added getter method for password
+    //used in BankServer class for authentication
+    public String getPassword() { return password; }
 }
