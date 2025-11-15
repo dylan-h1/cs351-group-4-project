@@ -8,8 +8,8 @@ public class AccountTest {
 
     @BeforeEach
     public void setUp() {
-        alice = new Account("alice", "pass", 1000.0);
-        bob = new Account("bob", "word", 1000.0);
+        alice = new Account("alice", "pass");
+        bob = new Account("bob", "word");
     }
 
    @Test
@@ -70,7 +70,8 @@ public class AccountTest {
 
     @Test
     public void WithdrawFromEmptyAccount() {
-        Account emptyAccount = new Account("charlie", "1234", 0.0);
+        Account emptyAccount = new Account("charlie", "1234");
+        emptyAccount.withdraw(1000.0);
         emptyAccount.withdraw(100.0);
         assertEquals(0.0, emptyAccount.getBalance(), 0.001);
     }
