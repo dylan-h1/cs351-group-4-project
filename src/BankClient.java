@@ -1,53 +1,85 @@
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class BankClient {
 
     Socket socket;
     PrintWriter out;
     BufferedReader in;
+    private boolean loggedIn = false;
 
-    public BankClient(String address, int port) throws IOException {
+    BankClient(String address, int port) throws IOException {
         socket = new Socket(address, port);
+    }
+
+    public void connect() throws IOException {
+        Scanner scanner = new Scanner(System.in);
         out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        listenForUpdates();
-    }
-
-    //unused but will be used in ClientMenu
-    //send command to ClientHandler and return response
-    public String send(String command) throws IOException {
-        if (socket == null || socket.isClosed()) {
-            throw new IOException("Socket is not connected");
-        }
-        out.println(command);
-        return in.readLine();
-    }
-
-    private void listenForUpdates() {
-        Thread listenerThread = new Thread(() -> {
-            try {
-                String update;
-                while ((update = in.readLine()) != null) {
-                    System.out.println("Update from server: " + update);
-                }
-            } catch (IOException e) {
-                System.out.println("Error listening for updates:");
+        String msg = "";
+        try{
+            while (!msg.equals("exit")) {
+                System.out.println("Type in message:");
+                msg = scanner.nextLine();
+                out.println(msg);
             }
-        });
-        listenerThread.start();
+        } finally {
+            close();
+        }
     }
 
-    //unused but will be used in ClientMenu
-    //use as a close method when done with client
-    public void close() {
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
+    public boolean getLoggedIn() {
+        return loggedIn;
+    }
+
+    void send(String command) {
+        if (out != null) {
+            out.println(command);
+        }
+    } //I reckon we could do send and recieve in the one method
+
+    public String receive(String command) {
         try {
-            socket.close();
+            send(command);
+
+            String response = in.readLine();
+
+            if (response == null) {
+                return "Server closed unexpectedly";
+            }
+            return response;
+        } catch (Exception e) {
+            System.out.println("Problem communicating with the server: " + e.getMessage());
+            close();
+            return "Lost server connection";
+        }
+    }
+
+    void listenForUpdates() {
+    }
+
+    void close() {
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            BankClient client = new BankClient("127.0.0.1", 9000);
+            client.connect();
         } catch (IOException e) {
-            System.out.println("Error closing client socket:");
+            e.printStackTrace();
         }
     }
 }
