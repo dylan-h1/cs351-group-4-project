@@ -15,8 +15,8 @@ public class BankServerLogicTest {
     public void AccountTransfer() throws Exception {
         bankServer = new BankServer(0);
 
-        Account alice = new Account("alice", "pass", 1000.0);
-        Account bob = new Account("bob", "word", 1000.0);
+        Account alice = new Account("alice", "pass");
+        Account bob = new Account("bob", "word");
 
         assert (alice.getBalance() == 1000.0);
         assert (bob.getBalance() == 1000.0);

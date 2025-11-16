@@ -89,6 +89,18 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleCreateAccount(String[] commandArgs) {
+        String username = commandArgs[1];
+        String password = commandArgs[2];
+
+        if (server.accounts.containsKey(username)) {
+            sendMessage("ERROR: Username already exists");
+            return;
+        }
+
+        Account newAccount = new Account(username, password);
+        server.accounts.put(username, newAccount);
+
+        sendMessage("SUCCESS: Account created for " + username);
     }
 
     private void handleLogin(String[] commandArgs) {
@@ -111,6 +123,12 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleViewBalance(String[] commandArgs) {
+        requireLogin();
+
+        Account account = server.accounts.get(username);
+        double accountBalance = account.getBalance();
+
+        sendMessage("SUCCESS: Balance is £" + accountBalance);
     }
 
     private void handleDeposit(String[] commandArgs) {
@@ -135,14 +153,67 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleWithdraw(String[] commandArgs) {
+        requireLogin();
+
+        double amount = Double.parseDouble(commandArgs[1]);
+        if (amount <= 0) {
+            sendMessage("ERROR: Withdraw amount must be greater than 0");
+            return;
+        }
+        Account account = server.accounts.get(username);
+        boolean success = account.withdraw(amount);
+        if (!success) {
+            sendMessage("ERROR: Withdraw failed due to insufficient funds");
+            return;
+        }
+        server.transactionLedger.add(
+                "WITHDRAW",
+                "BANK",
+                username,
+                amount);
+        server.notifyUser(username, "WITHDRAW: £" + amount + " withdrawn from your account");
+        sendMessage("SUCCESS: Withdrawn £" + amount);
     }
 
     private void handleTransfer(String[] commandArgs) {
+        requireLogin();
+
+        String targetUsername = commandArgs[1];
+        double amount = Double.parseDouble(commandArgs[2]);
+        if (amount <= 0) {
+            sendMessage("ERROR: Transfer amount must be greater than 0");
+            return;
+        }
+
+        Account currentAccount = server.accounts.get(username);
+        Account targetAccount = server.accounts.get(targetUsername);
+
+        if (targetAccount == null) {
+            sendMessage("ERROR: Target account does not exist");
+            return;
+        }
+
+        boolean success = currentAccount.transferTo(targetAccount, amount);
+        if (!success) {
+            sendMessage("ERROR: Transfer failed");
+            return;
+        }
+        server.transactionLedger.add(
+                "TRANSFER",
+                username,
+                targetUsername,
+                amount
+        );
+        server.notifyUser(username, "TRANSFER: £" + amount + " transferred from your account");
+        server.notifyUser(targetUsername, "TRANSFER: £" + amount + " transferred to your account");
+        sendMessage("SUCCESS: Transferred £" + amount);
     }
 
     private void handleLogout(String[] commandArgs) {
+        requireLogin();
 
+        server.onlineUsers.remove(username);
+        username = null;
+        sendMessage("SUCCESS: Logged out");
     }
-
-
 }
