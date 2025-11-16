@@ -1,3 +1,5 @@
+package main;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -50,7 +52,7 @@ public class BankServer implements Runnable {
         }
     }
 
-    void stop() {
+    public void stop() {
         isRunning = false;
         if (serverSocket != null) {
             try {

@@ -1,3 +1,5 @@
+package main;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -65,7 +67,7 @@ public class BankClient {
 
     public static void main(String[] args) {
         try {
-             ClientMenu menu = new ClientMenu("127.0.01", 9000);
+             ClientMenu menu = new ClientMenu("127.0.0.1", 9000);
                 menu.run();
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,3 +1,7 @@
+package test;
+
+import main.Account;
+import main.BankServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

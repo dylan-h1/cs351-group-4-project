@@ -1,3 +1,7 @@
+package main;
+
+import main.constants.Command;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -53,17 +57,24 @@ public class ClientHandler implements Runnable {
 
     void handleCommand(String cmd) {
         String[] commandArgs = cmd.split(" ");
-        String command = commandArgs[0].toUpperCase();
+        String commandString = commandArgs[0].toUpperCase();
+
+        Command command = Command.fromString(commandString);
+
+        if (command == null) {
+            sendMessage("ERROR: Unknown command");
+            return;
+        }
 
         try{
             switch (command) {
-                case "CREATE_ACCOUNT" -> handleCreateAccount(commandArgs);
-                case "LOGIN" -> handleLogin(commandArgs);
-                case "BALANCE" -> handleViewBalance(commandArgs);
-                case "DEPOSIT" -> handleDeposit(commandArgs);
-                case "WITHDRAW" -> handleWithdraw(commandArgs);
-                case "TRANSFER" -> handleTransfer(commandArgs);
-                case "LOGOUT" -> handleLogout(commandArgs);
+                case CREATE_ACCOUNT -> handleCreateAccount(commandArgs);
+                case LOGIN -> handleLogin(commandArgs);
+                case BALANCE -> handleViewBalance(commandArgs);
+                case DEPOSIT -> handleDeposit(commandArgs);
+                case WITHDRAW -> handleWithdraw(commandArgs);
+                case TRANSFER -> handleTransfer(commandArgs);
+                case LOGOUT -> handleLogout(commandArgs);
                 default -> sendMessage("ERROR: Unknown command");
             }
         } catch (NumberFormatException e) {
