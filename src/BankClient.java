@@ -1,8 +1,8 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class BankClient {
 
@@ -11,23 +11,11 @@ public class BankClient {
     BufferedReader in;
     private boolean loggedIn = false;
 
-    BankClient(String address, int port) throws IOException {
+    public BankClient(String address, int port) throws IOException {
         socket = new Socket(address, port);
-    }
-
-    public void connect() throws IOException {
-        Scanner scanner = new Scanner(System.in);
         out = new PrintWriter(socket.getOutputStream(), true);
-        String msg = "";
-        try{
-            while (!msg.equals("exit")) {
-                System.out.println("Type in message:");
-                msg = scanner.nextLine();
-                out.println(msg);
-            }
-        } finally {
-            close();
-        }
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        //startListener(); -> commented out as it doesnt work fully, but needed for async updates
     }
 
     public void setLoggedIn(boolean loggedIn) {
@@ -38,31 +26,32 @@ public class BankClient {
         return loggedIn;
     }
 
-    void send(String command) {
-        if (out != null) {
-            out.println(command);
-        }
-    } //I reckon we could do send and recieve in the one method
-
-    public String receive(String command) {
+    public String sendCommand(String command) {
         try {
-            send(command);
-
-            String response = in.readLine();
-
-            if (response == null) {
-                return "Server closed unexpectedly";
-            }
-            return response;
-        } catch (Exception e) {
-            System.out.println("Problem communicating with the server: " + e.getMessage());
-            close();
-            return "Lost server connection";
+            out.println(command);
+            return in.readLine();
+        } catch (IOException e) {
+            return "Error communicating with server: " + e.getMessage();
         }
+
+    }
+    //i dont think we need recieve(), as send command handles the response
+
+    public void startListener() {
+        Thread thread = new Thread(this::listenForUpdates);
+        thread.start();
     }
 
     void listenForUpdates() {
-    }
+            try {
+                String update;
+                while ((update = in.readLine()) != null) {
+                    System.out.println(update);
+                }
+            } catch (IOException e) {
+                System.out.println("Error listening for updates:");
+            }
+        }
 
     void close() {
         if (socket != null) {
@@ -74,12 +63,4 @@ public class BankClient {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            BankClient client = new BankClient("127.0.0.1", 9000);
-            client.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
