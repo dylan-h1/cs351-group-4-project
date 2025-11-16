@@ -59,7 +59,7 @@ public class ClientMenu {
         String password = scanner.nextLine();
 
         String loginCommand = "LOGIN" + " " + username + " " + password;
-        String response = client.receive(loginCommand);
+        String response = client.sendCommand(loginCommand);
         System.out.println(response);
 
         if(response != null && response.contains("SUCCESS")) {
@@ -78,7 +78,7 @@ public class ClientMenu {
         String password = scanner.nextLine();
 
         String signupCommand = "CREATE_ACCOUNT" + " " + username + " " + password;
-        String response = client.receive(signupCommand);
+        String response = client.sendCommand(signupCommand);
         System.out.println(response);
 
         if(response != null && response.contains("SUCCESS")) {
@@ -121,7 +121,7 @@ public class ClientMenu {
             case 1:
                 command = "BALANCE";
 
-                response = client.receive(command);
+                response = client.sendCommand(command);
                 System.out.println(response);
                 break;
             case 2:
@@ -130,7 +130,7 @@ public class ClientMenu {
                     double amount = scanner.nextDouble();
                     command = "DEPOSIT" + amount;
 
-                    response = client.receive(command);
+                    response = client.sendCommand(command);
                     System.out.println(response);
                 }
                 System.out.println("Invalid amount");
@@ -142,7 +142,7 @@ public class ClientMenu {
                     double amount = scanner.nextDouble();
 
                     command = "WITHDRAW" + amount;
-                    response = client.receive(command);
+                    response = client.sendCommand(command);
                     System.out.println(response);
 
                 }
@@ -156,17 +156,17 @@ public class ClientMenu {
                 double amount = scanner.nextDouble();
 
                 command = "TRANSFER" + username + " " + amount;
-                response = client.receive(command);
+                response = client.sendCommand(command);
                 System.out.println(response);
                 break;
             case 5:
                 command = "VIEW TRANSACTIONS";
-                response = client.receive(command);
+                response = client.sendCommand(command);
                 System.out.println(response);
                 break;
             case 6:
                 command = "LOGOUT";
-                response = client.receive(command);
+                response = client.sendCommand(command);
                 System.out.println(response);
                 client.setLoggedIn(false);
                 break;
