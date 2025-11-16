@@ -59,7 +59,7 @@ public class ClientHandler implements Runnable {
             switch (command) {
                 case "CREATE_ACCOUNT" -> handleCreateAccount(commandArgs);
                 case "LOGIN" -> handleLogin(commandArgs);
-                case "VIEW_BALANCE" -> handleViewBalance(commandArgs);
+                case "BALANCE" -> handleViewBalance(commandArgs);
                 case "DEPOSIT" -> handleDeposit(commandArgs);
                 case "WITHDRAW" -> handleWithdraw(commandArgs);
                 case "TRANSFER" -> handleTransfer(commandArgs);
