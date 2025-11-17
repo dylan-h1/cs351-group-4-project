@@ -1,4 +1,4 @@
-package main.constants;
+package constants;
 
 public enum Command {
     CREATE_ACCOUNT("CREATE_ACCOUNT"),

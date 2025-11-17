@@ -1,9 +1,7 @@
-package main;
-
 import java.io.IOException;
 import java.util.Scanner;
 
-import static main.constants.Command.*;
+import static constants.Command.*;
 
 public class ClientMenu {
 

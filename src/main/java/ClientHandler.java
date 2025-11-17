@@ -1,6 +1,4 @@
-package main;
-
-import main.constants.Command;
+import constants.Command;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
