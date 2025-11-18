@@ -88,17 +88,24 @@ public class BankServer implements Runnable {
 
     public void applyInterest() {
         for (Account account : accounts.values()) {
-            double interest = account.getBalance() * interestRate / 100;
-            account.deposit(interest);
+            double interest;
+            account.lock.lock();
+            try {
+                interest = account.getBalance() * interestRate / 100;
+                account.deposit(interest);
+            } finally {
+                account.lock.unlock();
+            }
+
             transactionLedger.addNewTransaction(
                     "INTEREST",
                     "BANK",
                     account.username,
                     interest
             );
+
             notifyUser(account.username,
-                    String.format(
-                            "Interest of %.2f applied to your account. New balance: %.2f",
+                    String.format("[INTEREST] £%.2f interest applied. New balance: £%.2f",
                             interest,
                             account.getBalance()));
         }
@@ -163,6 +170,7 @@ public class BankServer implements Runnable {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
 
+            // skips header of csv (username,password,balance)
             String line = reader.readLine();
 
             while ((line = reader.readLine()) != null) {
@@ -195,6 +203,7 @@ public class BankServer implements Runnable {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
 
+            // skips header of csv (type,from,to,amount,timestamp)
             String line = reader.readLine();
 
             while ((line = reader.readLine()) != null) {

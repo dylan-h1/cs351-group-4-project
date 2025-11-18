@@ -135,7 +135,7 @@ public class ClientHandler implements Runnable {
         requireLogin();
 
         Account account = server.accounts.get(username);
-        double accountBalance = account.getBalance();
+        double accountBalance = account.roundBalanceTo2DecimalPlaces(account.getBalance());
 
         sendMessage("SUCCESS: Balance is £" + accountBalance);
     }
@@ -157,7 +157,6 @@ public class ClientHandler implements Runnable {
                 username,
                 amount
         );
-        server.notifyUser(username, "DEPOSIT: £" + amount + " deposited to your account");
         sendMessage("SUCCESS: Deposited £" + amount);
     }
 
@@ -180,7 +179,6 @@ public class ClientHandler implements Runnable {
                 "BANK",
                 username,
                 amount);
-        server.notifyUser(username, "WITHDRAW: £" + amount + " withdrawn from your account");
         sendMessage("SUCCESS: Withdrawn £" + amount);
     }
 
@@ -213,7 +211,6 @@ public class ClientHandler implements Runnable {
                 targetUsername,
                 amount
         );
-        server.notifyUser(username, "TRANSFER: £" + amount + " transferred from your account");
         server.notifyUser(targetUsername, "TRANSFER: £" + amount + " transferred to your account");
         sendMessage("SUCCESS: Transferred £" + amount);
     }

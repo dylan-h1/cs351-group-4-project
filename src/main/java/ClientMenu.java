@@ -102,7 +102,7 @@ public class ClientMenu {
             System.out.println("4. Transfer Funds");
             System.out.println("5. View Transactions");
             System.out.println("6. Logout");
-            System.out.println("Enter your choice: ");
+            System.out.print("Enter your choice: ");
 
             if (scanner.hasNextLine()) {
                 choice = Integer.parseInt(scanner.nextLine());
@@ -128,28 +128,29 @@ public class ClientMenu {
                 break;
             case 2:
                 System.out.println("Please enter the amount you want to deposit: ");
-                if (scanner.hasNextLine()) {
-                    double amount = Double.parseDouble(scanner.nextLine());
+                String deposit = scanner.nextLine();
+                try {
+                    double amount = Double.parseDouble(deposit);
                     command = DEPOSIT.getText() + " " + amount;
 
                     response = client.sendCommand(command);
                     System.out.println(response);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid amount");
                 }
-                System.out.println("Invalid amount");
-                scanner.nextLine();
                 break;
             case 3:
                 System.out.println("Please enter the amount you want to withdraw: ");
-                if (scanner.hasNextLine()) {
-                    double amount = Double.parseDouble(scanner.nextLine());
+                String withdraw = scanner.nextLine();
+                try {
+                    double amount = Double.parseDouble(withdraw);
 
                     command = WITHDRAW.getText() + " " + amount;
                     response = client.sendCommand(command);
                     System.out.println(response);
-
+                } catch (NumberFormatException e){
+                    System.out.println("Invalid amount");
                 }
-                System.out.println("Invalid amount");
-                scanner.nextLine();
                 break;
             case 4:
                 System.out.println("Enter the username of the account you want to transfer: ");
