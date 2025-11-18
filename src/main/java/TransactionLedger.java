@@ -7,8 +7,12 @@ public class TransactionLedger implements Serializable {
 
     private final List<Transaction> transactions = Collections.synchronizedList(new ArrayList<>());
 
-    public void add(String type, String from, String to, double amount) {
+    public void addNewTransaction(String type, String from, String to, double amount) {
         transactions.add(new Transaction(type, from, to, amount));
+    }
+
+    public void addExistingTransaction(Transaction transaction) {
+        transactions.add(transaction);
     }
 
     public List<Transaction> getUserTransactions(String username) {

@@ -14,6 +14,12 @@ public class Account implements Serializable {
         this.balance = 1000;
     }
 
+    public Account(String username, String password, double balance) {
+        this.username = username;
+        this.password = password;
+        this.balance = balance;
+    }
+
     public void deposit(double amount) {
         lock.lock();
         try {

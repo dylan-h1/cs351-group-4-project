@@ -105,11 +105,11 @@ public class AdminMenu {
 
         if (action.equals("add")) {
             account.deposit(amount);
-            bankServer.transactionLedger.add("ADD", "Admin", user, amount);
+            bankServer.transactionLedger.addNewTransaction("ADD", "Admin", user, amount);
             System.out.println("Added £" + amount + " to " + user + "'s account");
         } else {
             account.withdraw(amount);
-            bankServer.transactionLedger.add("REMOVE", "Admin", user, amount);
+            bankServer.transactionLedger.addNewTransaction("REMOVE", "Admin", user, amount);
             System.out.println("Removed £" + amount + " from " + user + "'s account");
         }
     }
@@ -141,7 +141,7 @@ public class AdminMenu {
         }
 
         fromAccount.transferTo(toAccount, amount);
-        bankServer.transactionLedger.add("ADD", fromUser, toUser, amount);
+        bankServer.transactionLedger.addNewTransaction("ADD", fromUser, toUser, amount);
         System.out.println("Transferred £" + amount + " to " + toUser + "'s account");
     }
 

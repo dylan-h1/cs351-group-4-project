@@ -26,8 +26,7 @@ public class ClientMenu {
             System.out.print("Please enter 1, 2 or 3: ");
 
             if (scanner.hasNextLine()) {
-                String input = scanner.nextLine();
-                int choice = Integer.parseInt(input);
+                int choice = Integer.parseInt(scanner.nextLine());
 
                 switch (choice) {
                     case 1:
@@ -56,9 +55,9 @@ public class ClientMenu {
 
     public void handleLogin() {
         System.out.println("\n===== LOGIN =====");
-        System.out.println("Username: ");
+        System.out.print("Username: ");
         String username = scanner.nextLine();
-        System.out.println("Password: ");
+        System.out.print("Password: ");
         String password = scanner.nextLine();
 
         String loginCommand = "LOGIN" + " " + username + " " + password;
@@ -105,8 +104,8 @@ public class ClientMenu {
             System.out.println("6. Logout");
             System.out.println("Enter your choice: ");
 
-            if (scanner.hasNextInt()) {
-                choice = scanner.nextInt();
+            if (scanner.hasNextLine()) {
+                choice = Integer.parseInt(scanner.nextLine());
                 handleUserChoice(choice);
             } else {
                 System.out.println("Invalid input, try again");
@@ -129,8 +128,8 @@ public class ClientMenu {
                 break;
             case 2:
                 System.out.println("Please enter the amount you want to deposit: ");
-                if (scanner.hasNextDouble()) {
-                    double amount = scanner.nextDouble();
+                if (scanner.hasNextLine()) {
+                    double amount = Double.parseDouble(scanner.nextLine());
                     command = DEPOSIT.getText() + " " + amount;
 
                     response = client.sendCommand(command);
@@ -141,8 +140,8 @@ public class ClientMenu {
                 break;
             case 3:
                 System.out.println("Please enter the amount you want to withdraw: ");
-                if (scanner.hasNextDouble()) {
-                    double amount = scanner.nextDouble();
+                if (scanner.hasNextLine()) {
+                    double amount = Double.parseDouble(scanner.nextLine());
 
                     command = WITHDRAW.getText() + " " + amount;
                     response = client.sendCommand(command);
@@ -156,7 +155,7 @@ public class ClientMenu {
                 System.out.println("Enter the username of the account you want to transfer: ");
                 String username = scanner.nextLine();
                 System.out.println("Enter the amount you want to send: ");
-                double amount = scanner.nextDouble();
+                double amount = Double.parseDouble(scanner.nextLine());
 
                 command = TRANSFER.getText() + " " + username + " " + amount;
                 response = client.sendCommand(command);

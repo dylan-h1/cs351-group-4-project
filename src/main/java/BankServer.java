@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.concurrent.*;
 
 public class BankServer implements Runnable {
@@ -31,22 +32,19 @@ public class BankServer implements Runnable {
     public void run() {
         isRunning = true;
         System.out.println("Bank server started on port " + serverSocket.getLocalPort());
-        try{
-            while (isRunning) {
-                try{
-                    Socket socket = serverSocket.accept();
-                    System.out.println("New client connected");
-                    clientPool.submit(new ClientHandler(socket, this));
-                } catch (IOException e){
-                    if (isRunning) {
-                        e.printStackTrace();
-                    } else {
-                        System.out.println("Server shutting down.");
-                    }
+
+        while (isRunning) {
+            try{
+                Socket socket = serverSocket.accept();
+                System.out.println("New client connected");
+                clientPool.submit(new ClientHandler(socket, this));
+            } catch (IOException e){
+                if (isRunning) {
+                    e.printStackTrace();
+                } else {
+                    System.out.println("Server shutting down.");
                 }
             }
-        } finally {
-            stop();
         }
     }
 
@@ -92,7 +90,7 @@ public class BankServer implements Runnable {
         for (Account account : accounts.values()) {
             double interest = account.getBalance() * interestRate / 100;
             account.deposit(interest);
-            transactionLedger.add(
+            transactionLedger.addNewTransaction(
                     "INTEREST",
                     "BANK",
                     account.username,
@@ -107,42 +105,116 @@ public class BankServer implements Runnable {
     }
 
     public void saveData() {
-        try{
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("accounts.dat"));
-            out.writeObject(accounts);
-            out.close();
-        } catch (IOException e) {
-            System.out.println("Error saving accounts data:");
-        }
-        try{
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("ledger.dat"));
-            out.writeObject(transactionLedger);
-            out.close();
-        } catch (IOException e) {
-            System.out.println("Error saving ledger data:");
-        }
+        saveAccounts();
+        saveTransactionLedger();
     }
 
     public void loadData() {
-        File accountsFile = new File("accounts.dat");
-        if (accountsFile.exists()) {
-            try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(accountsFile));
-                accounts = (ConcurrentHashMap<String, Account>) in.readObject();
-                in.close();
-            } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Error loading accounts data:");
+        loadAccounts();
+        loadTransactionLedger();
+    }
+
+    public void saveAccounts() {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter("accounts.csv"));
+
+            writer.println("username,password,balance");
+
+            for (Account account : accounts.values()) {
+                writer.printf("%s,%s,%f%n", account.username, account.password, account.balance);
             }
+
+            writer.flush();
+            writer.close();
+
+            System.out.println("Saved to accounts.csv");
+        } catch (IOException e) {
+            System.out.println("Error saving accounts to accounts.csv" + e.getMessage());
         }
-        File ledgerFile = new File("ledger.dat");
-        if (ledgerFile.exists()) {
-            try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(ledgerFile));
-                transactionLedger = (TransactionLedger) in.readObject();
-                in.close();
-            } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Error loading ledger data:");
+    }
+
+    public void saveTransactionLedger() {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter("ledger.csv"));
+
+            writer.println("type,from,to,amount,timestamp");
+
+            for (Transaction transaction : transactionLedger.getAllTransactions()) {
+                writer.printf("%s,%s,%s,%f,%s%n", transaction.getType(), transaction.getFrom(), transaction.getTo(), transaction.getAmount(), transaction.getTimestamp());
             }
+
+            writer.flush();
+            writer.close();
+
+            System.out.println("Saved to ledger.csv successfully");
+        } catch (IOException e) {
+            System.out.println("Error saving transaction data to ledger.csv" + e.getMessage());
+        }
+    }
+
+    public void loadAccounts() {
+        File file = new File("accounts.csv");
+
+        if (!file.exists()) {
+            System.out.println("No account data present, creating new data");
+            return;
+        }
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+
+            String line = reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] details = line.split(",");
+
+                String username = details[0];
+                String password = details[1];
+                double balance = Double.parseDouble(details[2]);
+
+                Account account = new Account(username, password, balance);
+                accounts.put(username, account);
+            }
+
+            System.out.println("Loaded from accounts.csv successfully");
+        } catch (FileNotFoundException e) {
+            System.out.println("accounts.csv not found" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error loading accounts.csv" + e.getMessage());
+        }
+    }
+
+    public void loadTransactionLedger() {
+        File file = new File("ledger.csv");
+
+        if (!file.exists()) {
+            System.out.println("No ledger data present, creating new data");
+            return;
+        }
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+
+            String line = reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] details = line.split(",");
+
+                String type = details[0];
+                String from = details[1];
+                String to = details[2];
+                double amount = Double.parseDouble(details[3]);
+                LocalDateTime timestamp = LocalDateTime.parse(details[4]);
+
+                Transaction transaction = new Transaction(type, from, to, amount, timestamp);
+                transactionLedger.addExistingTransaction(transaction);
+            }
+
+            System.out.println("Loaded from ledger.csv successfully");
+        } catch (FileNotFoundException e) {
+            System.out.println("ledger.csv not found" + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error loading ledger.csv" + e.getMessage());
         }
     }
 

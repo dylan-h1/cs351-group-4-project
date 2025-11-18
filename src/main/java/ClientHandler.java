@@ -151,7 +151,7 @@ public class ClientHandler implements Runnable {
         Account account = server.accounts.get(username);
         account.deposit(amount);
 
-        server.transactionLedger.add(
+        server.transactionLedger.addNewTransaction(
                 "DEPOSIT",
                 "BANK",
                 username,
@@ -175,7 +175,7 @@ public class ClientHandler implements Runnable {
             sendMessage("ERROR: Withdraw failed due to insufficient funds");
             return;
         }
-        server.transactionLedger.add(
+        server.transactionLedger.addNewTransaction(
                 "WITHDRAW",
                 "BANK",
                 username,
@@ -207,7 +207,7 @@ public class ClientHandler implements Runnable {
             sendMessage("ERROR: Transfer failed");
             return;
         }
-        server.transactionLedger.add(
+        server.transactionLedger.addNewTransaction(
                 "TRANSFER",
                 username,
                 targetUsername,

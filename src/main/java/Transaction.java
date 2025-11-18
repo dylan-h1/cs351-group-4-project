@@ -17,6 +17,14 @@ public class Transaction implements Serializable{
         this.timestamp = LocalDateTime.now();
     }
 
+    public Transaction(String type, String from, String to, double amount, LocalDateTime timestamp) {
+        this.type = type;
+        this.from = from;
+        this.to = to;
+        this.amount = amount;
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return String.format("[%s] %s: from=%s to=%s amount=£%.2f",
@@ -29,4 +37,8 @@ public class Transaction implements Serializable{
     //added these getters for the test cases
     public double getAmount() { return amount; }
     public String getType() { return type; }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }
