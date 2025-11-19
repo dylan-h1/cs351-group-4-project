@@ -50,7 +50,7 @@ public class BankServer implements Runnable {
         }
     }
 
-    void stop() {
+    public void stop() {
         isRunning = false;
         if (serverSocket != null) {
             try {

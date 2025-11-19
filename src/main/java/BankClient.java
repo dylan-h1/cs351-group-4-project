@@ -65,7 +65,7 @@ public class BankClient {
 
     public static void main(String[] args) {
         try {
-             ClientMenu menu = new ClientMenu("127.0.01", 9000);
+             ClientMenu menu = new ClientMenu("127.0.0.1", 9000);
                 menu.run();
         } catch (IOException e) {
             e.printStackTrace();

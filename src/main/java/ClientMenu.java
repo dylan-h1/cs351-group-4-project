@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.util.Scanner;
 
+import static constants.Command.*;
+
 public class ClientMenu {
 
     BankClient client;
@@ -23,8 +25,9 @@ public class ClientMenu {
             System.out.println("3. Exit");
             System.out.print("Please enter 1, 2 or 3: ");
 
-            if (scanner.hasNextInt()) {
-                int choice = scanner.nextInt();
+            if (scanner.hasNextLine()) {
+                String input = scanner.nextLine();
+                int choice = Integer.parseInt(input);
 
                 switch (choice) {
                     case 1:
@@ -70,14 +73,14 @@ public class ClientMenu {
         }
     }
 
-    void handleSignup() {
+    public void handleSignup() {
         System.out.println("\n===== SIGN UP =====");
-        System.out.println("Enter new username: ");
+        System.out.print("Enter a username: ");
         String username = scanner.nextLine();
-        System.out.println("Enter new username password: ");
+        System.out.print("Enter a password: ");
         String password = scanner.nextLine();
 
-        String signupCommand = "CREATE_ACCOUNT" + " " + username + " " + password;
+        String signupCommand = CREATE_ACCOUNT.getText() + " " + username + " " + password;
         String response = client.sendCommand(signupCommand);
         System.out.println(response);
 
@@ -119,7 +122,7 @@ public class ClientMenu {
 
         switch (choice) {
             case 1:
-                command = "BALANCE";
+                command = BALANCE.getText();
 
                 response = client.sendCommand(command);
                 System.out.println(response);
@@ -128,7 +131,7 @@ public class ClientMenu {
                 System.out.println("Please enter the amount you want to deposit: ");
                 if (scanner.hasNextDouble()) {
                     double amount = scanner.nextDouble();
-                    command = "DEPOSIT" + amount;
+                    command = DEPOSIT.getText() + " " + amount;
 
                     response = client.sendCommand(command);
                     System.out.println(response);
@@ -141,7 +144,7 @@ public class ClientMenu {
                 if (scanner.hasNextDouble()) {
                     double amount = scanner.nextDouble();
 
-                    command = "WITHDRAW" + amount;
+                    command = WITHDRAW.getText() + " " + amount;
                     response = client.sendCommand(command);
                     System.out.println(response);
 
@@ -155,17 +158,17 @@ public class ClientMenu {
                 System.out.println("Enter the amount you want to send: ");
                 double amount = scanner.nextDouble();
 
-                command = "TRANSFER" + username + " " + amount;
+                command = TRANSFER.getText() + " " + username + " " + amount;
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
             case 5:
-                command = "VIEW TRANSACTIONS";
+                command = VIEW_TRANSACTIONS.getText();
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
             case 6:
-                command = "LOGOUT";
+                command = LOGOUT.getText();
                 response = client.sendCommand(command);
                 System.out.println(response);
                 client.setLoggedIn(false);
