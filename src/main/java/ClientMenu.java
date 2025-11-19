@@ -127,38 +127,22 @@ public class ClientMenu {
                 System.out.println(response);
                 break;
             case 2:
-                System.out.print("Please enter the amount you want to deposit: ");
-                String deposit = scanner.nextLine();
-                try {
-                    double amount = Double.parseDouble(deposit);
-                    command = DEPOSIT.getText() + " " + amount;
-
-                    response = client.sendCommand(command);
-                    System.out.println(response);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid amount");
-                }
+                double depositAmount = readDouble("Please enter the amount you want to deposit: ");
+                command = DEPOSIT.getText() + " " + depositAmount;
+                response = client.sendCommand(command);
+                System.out.println(response);
                 break;
             case 3:
-                System.out.print("Please enter the amount you want to withdraw: ");
-                String withdraw = scanner.nextLine();
-                try {
-                    double amount = Double.parseDouble(withdraw);
-
-                    command = WITHDRAW.getText() + " " + amount;
-                    response = client.sendCommand(command);
-                    System.out.println(response);
-                } catch (NumberFormatException e){
-                    System.out.println("Invalid amount");
-                }
+                double withdrawAmount = readDouble("Please enter the amount you want to withdraw: ");
+                command = WITHDRAW.getText() + " " + withdrawAmount;
+                response = client.sendCommand(command);
+                System.out.println(response);
                 break;
             case 4:
                 System.out.print("Enter the username of the account you want to transfer: ");
                 String username = scanner.nextLine();
-                System.out.print("Enter the amount you want to send: ");
-                double amount = Double.parseDouble(scanner.nextLine());
-
-                command = TRANSFER.getText() + " " + username + " " + amount;
+                double transferAmount = readDouble("Enter the amount you want to send: ");
+                command = TRANSFER.getText() + " " + username + " " + transferAmount;
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
@@ -175,6 +159,24 @@ public class ClientMenu {
                 break;
             default:
                 System.out.println("Invalid input, try again");
+        }
+    }
+
+    private double readDouble(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+
+            try {
+                double value = Double.parseDouble(input);
+                if (value < 0) {
+                    System.out.println("Amount must be positive.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount — enter a number.");
+            }
         }
     }
 }
