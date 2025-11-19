@@ -127,7 +127,7 @@ public class ClientMenu {
                 System.out.println(response);
                 break;
             case 2:
-                System.out.println("Please enter the amount you want to deposit: ");
+                System.out.print("Please enter the amount you want to deposit: ");
                 String deposit = scanner.nextLine();
                 try {
                     double amount = Double.parseDouble(deposit);
@@ -140,7 +140,7 @@ public class ClientMenu {
                 }
                 break;
             case 3:
-                System.out.println("Please enter the amount you want to withdraw: ");
+                System.out.print("Please enter the amount you want to withdraw: ");
                 String withdraw = scanner.nextLine();
                 try {
                     double amount = Double.parseDouble(withdraw);
@@ -153,9 +153,9 @@ public class ClientMenu {
                 }
                 break;
             case 4:
-                System.out.println("Enter the username of the account you want to transfer: ");
+                System.out.print("Enter the username of the account you want to transfer: ");
                 String username = scanner.nextLine();
-                System.out.println("Enter the amount you want to send: ");
+                System.out.print("Enter the amount you want to send: ");
                 double amount = Double.parseDouble(scanner.nextLine());
 
                 command = TRANSFER.getText() + " " + username + " " + amount;

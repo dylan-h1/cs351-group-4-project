@@ -10,12 +10,14 @@ public class BankClient {
     PrintWriter out;
     BufferedReader in;
     private boolean loggedIn = false;
+    private volatile String lastResponse = null;
 
     public BankClient(String address, int port) throws IOException {
         socket = new Socket(address, port);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        //startListener(); -> commented out as it doesnt work fully, but needed for async updates
+
+        startListener();
     }
 
     public void setLoggedIn(boolean loggedIn) {
@@ -27,31 +29,42 @@ public class BankClient {
     }
 
     public String sendCommand(String command) {
-        try {
-            out.println(command);
-            return in.readLine();
-        } catch (IOException e) {
-            return "Error communicating with server: " + e.getMessage();
+        lastResponse = null;
+        out.println(command);
+
+        while (lastResponse == null) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ignored) {
+            }
         }
 
+        return lastResponse;
     }
-    //i dont think we need recieve(), as send command handles the response
 
     public void startListener() {
         Thread thread = new Thread(this::listenForUpdates);
+        thread.setDaemon(true);
         thread.start();
     }
 
     void listenForUpdates() {
-            try {
-                String update;
-                while ((update = in.readLine()) != null) {
-                    System.out.println(update);
+        try {
+            String update;
+            while ((update = in.readLine()) != null) {
+                if (update.startsWith("[INTEREST]")) {
+                    // showing interest message and giving user choice to enter option in clean way
+                    System.out.println("\n\n" + update + "\n");
+                    System.out.print("Enter your choice: ");
+                } else {
+                    lastResponse = update;
                 }
-            } catch (IOException e) {
-                System.out.println("Error listening for updates:");
             }
+        } catch (IOException e) {
+            System.out.println("Error listening for updates:");
         }
+
+    }
 
     void close() {
         if (socket != null) {
