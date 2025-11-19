@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class BankServer implements Runnable {
@@ -14,7 +16,9 @@ public class BankServer implements Runnable {
     private ScheduledExecutorService scheduler;
     protected double interestRate;
     protected long interestPeriod;
+    List<String> serverLogs = new ArrayList<>();
     private boolean isRunning = false;
+
 
     public BankServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
@@ -36,7 +40,7 @@ public class BankServer implements Runnable {
         while (isRunning) {
             try{
                 Socket socket = serverSocket.accept();
-                System.out.println("New client connected");
+                log("New client connected");
                 clientPool.submit(new ClientHandler(socket, this));
             } catch (IOException e){
                 if (isRunning) {
@@ -65,7 +69,6 @@ public class BankServer implements Runnable {
         }
         saveData();
     }
-
     public void notifyUser(String username, String message) {
         ClientHandler handler = onlineUsers.get(username);
         if (handler != null) {
@@ -134,9 +137,9 @@ public class BankServer implements Runnable {
             writer.flush();
             writer.close();
 
-            System.out.println("Saved to accounts.csv");
+            log("Saved to accounts.csv");
         } catch (IOException e) {
-            System.out.println("Error saving accounts to accounts.csv" + e.getMessage());
+            log("Error saving accounts to accounts.csv" + e.getMessage());
         }
     }
 
@@ -153,9 +156,9 @@ public class BankServer implements Runnable {
             writer.flush();
             writer.close();
 
-            System.out.println("Saved to ledger.csv successfully");
+            log("Saved to ledger.csv successfully");
         } catch (IOException e) {
-            System.out.println("Error saving transaction data to ledger.csv" + e.getMessage());
+            log("Error saving transaction data to ledger.csv" + e.getMessage());
         }
     }
 
@@ -184,11 +187,11 @@ public class BankServer implements Runnable {
                 accounts.put(username, account);
             }
 
-            System.out.println("Loaded from accounts.csv successfully");
+            log("Loaded from accounts.csv successfully");
         } catch (FileNotFoundException e) {
-            System.out.println("accounts.csv not found" + e.getMessage());
+            log("accounts.csv not found" + e.getMessage());
         } catch (IOException e) {
-            System.out.println("Error loading accounts.csv" + e.getMessage());
+            log("Error loading accounts.csv" + e.getMessage());
         }
     }
 
@@ -219,12 +222,17 @@ public class BankServer implements Runnable {
                 transactionLedger.addExistingTransaction(transaction);
             }
 
-            System.out.println("Loaded from ledger.csv successfully");
+            log("Loaded from ledger.csv successfully");
         } catch (FileNotFoundException e) {
-            System.out.println("ledger.csv not found" + e.getMessage());
+            log("ledger.csv not found" + e.getMessage());
         } catch (IOException e) {
-            System.out.println("Error loading ledger.csv" + e.getMessage());
+            log("Error loading ledger.csv" + e.getMessage());
         }
+    }
+
+    public void log(String msg) {
+        String fullMsg = "[" + LocalDateTime.now() + "] " + msg;
+        serverLogs.add(fullMsg);
     }
 
     public static void main(String[] args) {

@@ -26,13 +26,13 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Client connected");
+        server.log("Client connected");
         try {
             String input;
             {
                 while (true) {
                     if ((input = in.readLine()) != null) {
-                        System.out.println("Received command: " + input);
+                        server.log("Received command: " + input);
                         handleCommand(input);
                     } else {
                         break;
@@ -211,7 +211,14 @@ public class ClientHandler implements Runnable {
                 targetUsername,
                 amount
         );
-        server.notifyUser(targetUsername, "TRANSFER: £" + amount + " transferred to your account");
+        double newBalance = targetAccount.roundBalanceTo2DecimalPlaces(targetAccount.getBalance());
+
+        server.notifyUser(
+                targetUsername,
+                "[TRANSFER] You received £" + String.format("%.2f", amount) +
+                        " from " + username +
+                        ". New balance: £" + newBalance
+        );
         sendMessage("SUCCESS: Transferred £" + amount);
     }
 

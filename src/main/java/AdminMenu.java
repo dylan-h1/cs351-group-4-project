@@ -2,6 +2,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import static constants.Command.ADD;
+import static constants.Command.REMOVE;
+
 public class AdminMenu {
 
     private final BankServer bankServer;
@@ -23,7 +26,8 @@ public class AdminMenu {
             System.out.println("4. Transfer between users");
             System.out.println("5. Change interest rate");
             System.out.println("6. Change interest period");
-            System.out.println("7. Shutdown server");
+            System.out.println("7. View server logs");
+            System.out.println("8. Shutdown server");
             System.out.print("\nSelect option: ");
 
             String choice = scanner.nextLine();
@@ -47,6 +51,9 @@ public class AdminMenu {
                     changeInterestPeriod();
                     break;
                 case "7":
+                    showLogs();
+                    break;
+                case "8":
                     bankServer.stop();
                     running = false;
                     break;
@@ -78,8 +85,6 @@ public class AdminMenu {
         }
     }
 
-    // Input validation required
-    // Maybe worth adding an enum for type?
     private void adjustUserBalance() {
         System.out.print("Enter username you wish to adjust balance for: ");
         String user = scanner.nextLine();
@@ -97,24 +102,27 @@ public class AdminMenu {
             return;
         }
 
-        System.out.print("Enter amount: ");
-        double amount = Double.parseDouble(scanner.nextLine());
-        if (amount <= 0) {
-            System.out.println("Amount must be greater than 0.");
-        }
+        double amount = readDouble("Enter amount: ");
 
         if (action.equals("add")) {
             account.deposit(amount);
-            bankServer.transactionLedger.addNewTransaction("ADD", "Admin", user, amount);
+            bankServer.transactionLedger.addNewTransaction(ADD.getText(), "Admin", user, amount);
             System.out.println("Added £" + amount + " to " + user + "'s account");
+            bankServer.notifyUser(account.username,
+                    "[ADMIN] £" + String.format("%.2f", amount) +
+                            " added to your account by admin. New balance: £" + String.format("%.2f", account.getBalance()));
         } else {
-            account.withdraw(amount);
-            bankServer.transactionLedger.addNewTransaction("REMOVE", "Admin", user, amount);
-            System.out.println("Removed £" + amount + " from " + user + "'s account");
+            boolean success = account.withdraw(amount);
+            if (success) {
+                bankServer.transactionLedger.addNewTransaction(REMOVE.getText(), "Admin", user, amount);
+                System.out.println("Removed £" + amount + " from " + user + "'s account");
+                bankServer.notifyUser(account.username,
+                        "[ADMIN] £" + String.format("%.2f", amount) +
+                                " removed from your account by admin. New balance: £" + String.format("%.2f", account.getBalance()));
+            }
         }
     }
 
-    // Input validation needed
     private void transferBetweenUsers() {
         System.out.print("Enter username you wish to transfer money from: ");
         String fromUser = scanner.nextLine();
@@ -134,28 +142,55 @@ public class AdminMenu {
             return;
         }
 
-        System.out.print("Enter amount you wish to transfer from user '" + fromUser + "': ");
-        double amount = Double.parseDouble(scanner.nextLine());
-        if (amount <= 0) {
-            System.out.println("Amount must be greater than 0.");
-        }
+        double amount = readDouble("Enter amount you wish to transfer from user '" + fromUser + "': ");
 
-        fromAccount.transferTo(toAccount, amount);
-        bankServer.transactionLedger.addNewTransaction("ADD", fromUser, toUser, amount);
-        System.out.println("Transferred £" + amount + " to " + toUser + "'s account");
+        boolean success = fromAccount.transferTo(toAccount, amount);
+        if (success) {
+            bankServer.transactionLedger.addNewTransaction(ADD.getText(), fromUser, toUser, amount);
+            System.out.println("Transferred £" + amount + " to " + toUser + "'s account");
+            bankServer.notifyUser(toAccount.username,
+                    "[ADMIN] £" + String.format("%.2f", amount) +
+                            " sent to you from " + fromAccount.username + " by admin. New balance: £" + String.format("%.2f", toAccount.getBalance()));
+        }
     }
 
-    // Input validation required
     private void changeInterestRate() {
-        System.out.print("Enter new interest rate (e.g. 5.5): ");
-        bankServer.interestRate = Double.parseDouble(scanner.nextLine());
-        //restart interest schedule with new rate when changed
+        bankServer.interestRate = readDouble("Enter new interest rate (current is " + bankServer.interestRate + "): ");
         bankServer.interestSchedule();
     }
 
-    // Input validation required
     private void changeInterestPeriod() {
-        System.out.print("Enter new interest period in seconds (e.g. 5): ");
-        bankServer.interestPeriod = Long.parseLong(scanner.nextLine());
+        bankServer.interestPeriod = (long) readDouble("Enter new interest period in seconds (current is " + bankServer.interestPeriod + "): ");
+        bankServer.interestSchedule();
+    }
+
+    private void showLogs() {
+        System.out.println("\n===== SERVER LOGS =====");
+
+        if (!bankServer.serverLogs.isEmpty()) {
+            for (String entry : bankServer.serverLogs) {
+                System.out.println(entry);
+            }
+        }
+
+        System.out.println("=======================\n");
+    }
+
+    private double readDouble(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine();
+
+            try {
+                double value = Double.parseDouble(input);
+                if (value < 0) {
+                    System.out.println("Amount must be positive.");
+                    continue;
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount — enter a number.");
+            }
+        }
     }
 }

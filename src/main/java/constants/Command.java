@@ -8,6 +8,8 @@ public enum Command {
     WITHDRAW("WITHDRAW"),
     TRANSFER("TRANSFER"),
     LOGOUT("LOGOUT"),
+    ADD("ADD"),
+    REMOVE("REMOVE"),
     VIEW_TRANSACTIONS("VIEW_TRANSACTIONS");
 
     private final String text;
