@@ -1,4 +1,6 @@
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Account implements Serializable {
@@ -12,6 +14,12 @@ public class Account implements Serializable {
         this.username = username;
         this.password = password;
         this.balance = 1000;
+    }
+
+    public Account(String username, String password, double balance) {
+        this.username = username;
+        this.password = password;
+        this.balance = balance;
     }
 
     public void deposit(double amount) {
@@ -87,4 +95,11 @@ public class Account implements Serializable {
     //added getter method for password
     //used in BankServer class for authentication
     public String getPassword() { return password; }
+
+    // Taken from https://stackoverflow.com/questions/2808535/round-a-double-to-2-decimal-places
+    public double roundBalanceTo2DecimalPlaces(double value) {
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 }

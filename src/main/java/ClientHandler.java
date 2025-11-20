@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
+
+import static constants.Command.*;
 
 public class ClientHandler implements Runnable {
 
@@ -26,13 +29,13 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Client connected");
+        server.log("Client connected");
         try {
             String input;
             {
                 while (true) {
                     if ((input = in.readLine()) != null) {
-                        System.out.println("Received command: " + input);
+                        server.log("Received command: " + input);
                         handleCommand(input);
                     } else {
                         break;
@@ -40,8 +43,11 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if (server.isRunning) {
+                server.log(e.getMessage());
+            }
         } finally {
+            server.connectedClients.remove(socket);
             if (username != null && server.onlineUsers != null) {
                 server.onlineUsers.remove(username);
             }
@@ -135,7 +141,7 @@ public class ClientHandler implements Runnable {
         requireLogin();
 
         Account account = server.accounts.get(username);
-        double accountBalance = account.getBalance();
+        double accountBalance = account.roundBalanceTo2DecimalPlaces(account.getBalance());
 
         sendMessage("SUCCESS: Balance is £" + accountBalance);
     }
@@ -151,13 +157,12 @@ public class ClientHandler implements Runnable {
         Account account = server.accounts.get(username);
         account.deposit(amount);
 
-        server.transactionLedger.add(
-                "DEPOSIT",
+        server.transactionLedger.addNewTransaction(
+                DEPOSIT.getText(),
                 "BANK",
                 username,
                 amount
         );
-        server.notifyUser(username, "DEPOSIT: £" + amount + " deposited to your account");
         sendMessage("SUCCESS: Deposited £" + amount);
     }
 
@@ -175,12 +180,11 @@ public class ClientHandler implements Runnable {
             sendMessage("ERROR: Withdraw failed due to insufficient funds");
             return;
         }
-        server.transactionLedger.add(
-                "WITHDRAW",
+        server.transactionLedger.addNewTransaction(
+                WITHDRAW.getText(),
                 "BANK",
                 username,
                 amount);
-        server.notifyUser(username, "WITHDRAW: £" + amount + " withdrawn from your account");
         sendMessage("SUCCESS: Withdrawn £" + amount);
     }
 
@@ -207,14 +211,20 @@ public class ClientHandler implements Runnable {
             sendMessage("ERROR: Transfer failed");
             return;
         }
-        server.transactionLedger.add(
-                "TRANSFER",
+        server.transactionLedger.addNewTransaction(
+                TRANSFER.getText(),
                 username,
                 targetUsername,
                 amount
         );
-        server.notifyUser(username, "TRANSFER: £" + amount + " transferred from your account");
-        server.notifyUser(targetUsername, "TRANSFER: £" + amount + " transferred to your account");
+        double newBalance = targetAccount.roundBalanceTo2DecimalPlaces(targetAccount.getBalance());
+
+        server.notifyUser(
+                targetUsername,
+                "[" + LocalDateTime.now() + "] " + "[TRANSFER] You received £" + String.format("%.2f", amount) +
+                        " from " + username +
+                        ". New balance: £" + newBalance
+        );
         sendMessage("SUCCESS: Transferred £" + amount);
     }
 

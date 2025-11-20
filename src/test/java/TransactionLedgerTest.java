@@ -8,9 +8,9 @@ public class TransactionLedgerTest {
     public void addAndQueryTransactions() {
         TransactionLedger ledger = new TransactionLedger();
 
-        ledger.add(DEPOSIT.getText(), "alice", "alice", 100.0);
-        ledger.add(WITHDRAW.getText(), "alice", "alice", 50.0);
-        ledger.add(TRANSFER.getText(), "bob", "alice", 200.0);
+        ledger.addNewTransaction(DEPOSIT.getText(), "alice", "alice", 100.0);
+        ledger.addNewTransaction(WITHDRAW.getText(), "alice", "alice", 50.0);
+        ledger.addNewTransaction(TRANSFER.getText(), "bob", "alice", 200.0);
 
 
         var aliceTransactions = ledger.getUserTransactions("alice");
@@ -27,9 +27,9 @@ public class TransactionLedgerTest {
     public void getAllTransactions() {
         TransactionLedger ledger = new TransactionLedger();
 
-        ledger.add(DEPOSIT.getText(),  "alice", "alice", 100.0);
-        ledger.add(WITHDRAW.getText(), "alice", "alice", 50.0);
-        ledger.add(TRANSFER.getText(), "bob",   "alice", 200.0);
+        ledger.addNewTransaction(DEPOSIT.getText(),  "alice", "alice", 100.0);
+        ledger.addNewTransaction(WITHDRAW.getText(), "alice", "alice", 50.0);
+        ledger.addNewTransaction(TRANSFER.getText(), "bob",   "alice", 200.0);
 
         var allTransactions = ledger.getAllTransactions();
         assertEquals(3, allTransactions.size());
