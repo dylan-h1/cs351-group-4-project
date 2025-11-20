@@ -42,6 +42,7 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            server.connectedClients.remove(socket);
             if (username != null && server.onlineUsers != null) {
                 server.onlineUsers.remove(username);
             }

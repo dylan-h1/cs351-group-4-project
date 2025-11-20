@@ -30,11 +30,27 @@ public class BankClient {
 
     public String sendCommand(String command) {
         lastResponse = null;
-        out.println(command);
+        try {
+            if (socket.isClosed() || !socket.isConnected()) {
+                System.out.println("\nServer disconnected, exiting");
+                close();
+                System.exit(1);
+            }
+            out.println(command);
+        } catch (Exception e) {
+            System.out.println("\nServer disconnected, exiting");
+            close();
+            System.exit(1);
+        }
 
         while (lastResponse == null) {
             try {
                 Thread.sleep(10);
+                if (socket.isClosed() || !socket.isConnected()) {
+                    System.out.println("\nServer disconnected, exiting");
+                    close();
+                    System.exit(1);
+                }
             } catch (InterruptedException ignored) {
             }
         }
@@ -56,23 +72,29 @@ public class BankClient {
                     // showing interest message and giving user choice to enter option in clean way
                     System.out.println("\n\n" + update + "\n");
                     System.out.print("Enter your choice: ");
+                } else if (update.equals("SERVER_SHUTDOWN")) {
+                    System.out.println("\nServer is shutting down, exiting");
+                    close();
+                    System.exit(0);
                 } else {
                     lastResponse = update;
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error listening for updates:");
+            System.out.println("\nServer disconnected, exiting");
+            close();
+            System.exit(1);
         }
 
     }
 
     void close() {
-        if (socket != null) {
-            try {
+        try {
+            if (socket != null && !socket.isClosed()) {
                 socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

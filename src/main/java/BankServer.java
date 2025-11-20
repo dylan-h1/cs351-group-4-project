@@ -16,7 +16,8 @@ public class BankServer implements Runnable {
     private ScheduledExecutorService scheduler;
     protected double interestRate;
     protected long interestPeriod;
-    List<String> serverLogs = new ArrayList<>();
+    private List<String> serverLogs;
+    protected ConcurrentHashMap<Socket, ClientHandler> connectedClients;
     private boolean isRunning = false;
 
 
@@ -26,6 +27,8 @@ public class BankServer implements Runnable {
         accounts = new ConcurrentHashMap<>();
         transactionLedger = new TransactionLedger();
         onlineUsers = new ConcurrentHashMap<>();
+        serverLogs = new ArrayList<>();
+        connectedClients = new ConcurrentHashMap<>();
         interestRate = 2.5;
         interestPeriod = 60;
         interestSchedule();
@@ -41,7 +44,9 @@ public class BankServer implements Runnable {
             try{
                 Socket socket = serverSocket.accept();
                 log("New client connected");
-                clientPool.submit(new ClientHandler(socket, this));
+                ClientHandler handler = new ClientHandler(socket, this);
+                connectedClients.put(socket, handler);
+                clientPool.submit(handler);
             } catch (IOException e){
                 if (isRunning) {
                     e.printStackTrace();
@@ -54,6 +59,16 @@ public class BankServer implements Runnable {
 
     public void stop() {
         isRunning = false;
+
+        for (ClientHandler handler : connectedClients.values()) {
+            handler.sendMessage("SERVER_SHUTDOWN");
+            try {
+                handler.socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (serverSocket != null) {
             try {
                 serverSocket.close();
