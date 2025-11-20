@@ -68,7 +68,7 @@ public class BankClient {
         try {
             String update;
             while ((update = in.readLine()) != null) {
-                if (update.startsWith("[INTEREST]") || update.startsWith("[TRANSFER]") || update.startsWith("[ADMIN]")) {
+                if (update.contains("[INTEREST]") || update.contains("[TRANSFER]") || update.contains("[ADMIN]")) {
                     // showing interest message and giving user choice to enter option in clean way
                     System.out.println("\n\n" + update + "\n");
                     System.out.print("Enter your choice: ");
