@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
+
+import static constants.Command.*;
 
 public class ClientHandler implements Runnable {
 
@@ -155,7 +158,7 @@ public class ClientHandler implements Runnable {
         account.deposit(amount);
 
         server.transactionLedger.addNewTransaction(
-                "DEPOSIT",
+                DEPOSIT.getText(),
                 "BANK",
                 username,
                 amount
@@ -178,7 +181,7 @@ public class ClientHandler implements Runnable {
             return;
         }
         server.transactionLedger.addNewTransaction(
-                "WITHDRAW",
+                WITHDRAW.getText(),
                 "BANK",
                 username,
                 amount);
@@ -209,7 +212,7 @@ public class ClientHandler implements Runnable {
             return;
         }
         server.transactionLedger.addNewTransaction(
-                "TRANSFER",
+                TRANSFER.getText(),
                 username,
                 targetUsername,
                 amount
@@ -218,7 +221,7 @@ public class ClientHandler implements Runnable {
 
         server.notifyUser(
                 targetUsername,
-                "[TRANSFER] You received £" + String.format("%.2f", amount) +
+                "[" + LocalDateTime.now() + "] " + "[TRANSFER] You received £" + String.format("%.2f", amount) +
                         " from " + username +
                         ". New balance: £" + newBalance
         );

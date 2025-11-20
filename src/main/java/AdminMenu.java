@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -109,7 +110,7 @@ public class AdminMenu {
             bankServer.transactionLedger.addNewTransaction(ADD.getText(), "Admin", user, amount);
             System.out.println("Added £" + amount + " to " + user + "'s account");
             bankServer.notifyUser(account.username,
-                    "[ADMIN] £" + String.format("%.2f", amount) +
+                    "[" + LocalDateTime.now() + "] " + "[ADMIN] £" + String.format("%.2f", amount) +
                             " added to your account by admin. New balance: £" + String.format("%.2f", account.getBalance()));
         } else {
             boolean success = account.withdraw(amount);
@@ -117,7 +118,7 @@ public class AdminMenu {
                 bankServer.transactionLedger.addNewTransaction(REMOVE.getText(), "Admin", user, amount);
                 System.out.println("Removed £" + amount + " from " + user + "'s account");
                 bankServer.notifyUser(account.username,
-                        "[ADMIN] £" + String.format("%.2f", amount) +
+                        "[" + LocalDateTime.now() + "] " + "[ADMIN] £" + String.format("%.2f", amount) +
                                 " removed from your account by admin. New balance: £" + String.format("%.2f", account.getBalance()));
             }
         }
@@ -149,7 +150,7 @@ public class AdminMenu {
             bankServer.transactionLedger.addNewTransaction(ADD.getText(), fromUser, toUser, amount);
             System.out.println("Transferred £" + amount + " to " + toUser + "'s account");
             bankServer.notifyUser(toAccount.username,
-                    "[ADMIN] £" + String.format("%.2f", amount) +
+                    "[" + LocalDateTime.now() + "] " + "[ADMIN] £" + String.format("%.2f", amount) +
                             " sent to you from " + fromAccount.username + " by admin. New balance: £" + String.format("%.2f", toAccount.getBalance()));
         }
     }
