@@ -25,30 +25,24 @@ public class ClientMenu {
             System.out.println("3. Exit");
             System.out.print("Please enter 1, 2 or 3: ");
 
-            if (scanner.hasNextLine()) {
-                int choice = Integer.parseInt(scanner.nextLine());
-
-                switch (choice) {
-                    case 1:
-                        handleLogin();
-                        if (client.getLoggedIn()) {
-                            showMainMenu();
-                            return;
-                        }
-                        break;
-                    case 2:
-                        handleSignup();
-                        break;
-                    case 3:
-                        System.out.println("Exiting...");
-                        client.close();
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1":
+                    handleLogin();
+                    if (client.getLoggedIn()) {
+                        showMainMenu();
                         return;
-                    default:
-                        System.out.println("Invalid choice, try again");
-                }
-            } else {
-                System.out.println("Invalid input, try again please enter an integer");
-                scanner.next();
+                    }
+                    break;
+                case "2":
+                    handleSignup();
+                    break;
+                case "3":
+                    System.out.println("Exiting...");
+                    client.close();
+                    return;
+                default:
+                    System.out.println("Invalid option. Please enter a number 1-3");
             }
         }
     }
@@ -92,7 +86,6 @@ public class ClientMenu {
     }
 
     void showMainMenu() {
-        int choice;
         while (client.getLoggedIn()) {
 
             System.out.println("\n===== ACCOUNT MENU =====");
@@ -104,41 +97,35 @@ public class ClientMenu {
             System.out.println("6. Logout");
             System.out.print("Enter your choice: ");
 
-            if (scanner.hasNextLine()) {
-                choice = Integer.parseInt(scanner.nextLine());
-                handleUserChoice(choice);
-            } else {
-                System.out.println("Invalid input, try again");
-                scanner.nextLine();
-            }
+            handleUserChoice(scanner.nextLine());
         }
         showLoginMenu();
     }
 
-    void handleUserChoice(int choice) {
-        String command = "";
-        String response = "";
+    void handleUserChoice(String choice) {
+        String command;
+        String response;
 
         switch (choice) {
-            case 1:
+                case "1":
                 command = BALANCE.getText();
 
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
-            case 2:
+            case "2":
                 double depositAmount = readDouble("Please enter the amount you want to deposit: ");
                 command = DEPOSIT.getText() + " " + depositAmount;
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
-            case 3:
+            case "3":
                 double withdrawAmount = readDouble("Please enter the amount you want to withdraw: ");
                 command = WITHDRAW.getText() + " " + withdrawAmount;
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
-            case 4:
+            case "4":
                 System.out.print("Enter the username of the account you want to transfer: ");
                 String username = scanner.nextLine();
                 double transferAmount = readDouble("Enter the amount you want to send: ");
@@ -146,12 +133,12 @@ public class ClientMenu {
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
-            case 5:
+            case "5":
                 command = VIEW_TRANSACTIONS.getText();
                 response = client.sendCommand(command);
                 System.out.println(response);
                 break;
-            case 6:
+            case "6":
                 command = LOGOUT.getText();
                 response = client.sendCommand(command);
                 System.out.println(response);

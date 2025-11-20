@@ -18,7 +18,7 @@ public class BankServer implements Runnable {
     protected long interestPeriod;
     List<String> serverLogs;
     protected ConcurrentHashMap<Socket, ClientHandler> connectedClients;
-    private boolean isRunning = false;
+    protected boolean isRunning = false;
 
 
     public BankServer(int port) throws IOException {
