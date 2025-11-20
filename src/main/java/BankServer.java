@@ -16,7 +16,7 @@ public class BankServer implements Runnable {
     private ScheduledExecutorService scheduler;
     protected double interestRate;
     protected long interestPeriod;
-    private List<String> serverLogs;
+    List<String> serverLogs;
     protected ConcurrentHashMap<Socket, ClientHandler> connectedClients;
     private boolean isRunning = false;
 
