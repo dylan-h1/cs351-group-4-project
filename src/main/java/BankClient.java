@@ -68,6 +68,11 @@ public class BankClient {
         try {
             String update;
             while ((update = in.readLine()) != null) {
+                if (update.startsWith("START_OF_TRANSACTIONS")) {
+                    String updated = update.replace("START_OF_TRANSACTIONS", "");
+                    update = updated.replace("\\n", "\n");
+                }
+
                 if (update.startsWith("[INTEREST]") || update.startsWith("[TRANSFER]") || update.startsWith("[ADMIN]")) {
                     // showing interest message and giving user choice to enter option in clean way
                     System.out.println("\n\n" + update + "\n");
