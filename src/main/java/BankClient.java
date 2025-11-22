@@ -68,8 +68,12 @@ public class BankClient {
         try {
             String update;
             while ((update = in.readLine()) != null) {
-                if (update.contains("[INTEREST]") || update.contains("[TRANSFER]") || update.contains("[ADMIN]")) {
-                    // showing interest message and giving user choice to enter option in clean way
+                if (update.startsWith("START_OF_TRANSACTIONS")) {
+                    String updated = update.replace("START_OF_TRANSACTIONS", "");
+                    update = updated.replace("\\n", "\n");
+                }
+
+                if (update.contains("[INTEREST]") || update.contains("[TRANSFER]") || update.contains("[ADMIN]")) {                    // showing interest message and giving user choice to enter option in clean way
                     System.out.println("\n\n" + update + "\n");
                     System.out.print("Enter your choice: ");
                 } else if (update.equals("SERVER_SHUTDOWN")) {
