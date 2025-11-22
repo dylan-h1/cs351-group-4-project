@@ -41,4 +41,16 @@ public class TransactionLedgerTest {
                 t.getType().equals(TRANSFER.getText()) && t.getFrom().equals("bob") && t.getTo().equals("alice") && t.getAmount() == 200.0));
 
     }
+    @Test
+    public void getUserTransactions() {
+        TransactionLedger ledger = new TransactionLedger();
+
+        ledger.addNewTransaction(DEPOSIT.getText(), "alice", "alice", 100.0);
+        ledger.addNewTransaction(WITHDRAW.getText(), "alice", "alice", 50.0);
+        ledger.addNewTransaction(TRANSFER.getText(), "sam", "bob", 200.0);
+
+        var userTransactions = ledger.getUserTransactions("alice");
+        assertEquals(2, userTransactions.size());
+        assertTrue(userTransactions.stream().allMatch(t -> t.getFrom().equals("alice") || t.getTo().equals("alice")));
+    }
 }
