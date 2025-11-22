@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static constants.Command.*;
 
@@ -79,6 +80,7 @@ public class ClientHandler implements Runnable {
                 case WITHDRAW -> handleWithdraw(commandArgs);
                 case TRANSFER -> handleTransfer(commandArgs);
                 case LOGOUT -> handleLogout(commandArgs);
+                case VIEW_TRANSACTIONS -> handleViewTransactions(commandArgs);
                 default -> sendMessage("ERROR: Unknown command");
             }
         } catch (NumberFormatException e) {
@@ -234,5 +236,19 @@ public class ClientHandler implements Runnable {
         server.onlineUsers.remove(username);
         username = null;
         sendMessage("SUCCESS: Logged out");
+    }
+
+    private void handleViewTransactions(String[] commandArgs) {
+        requireLogin();
+
+        StringBuilder transactionsString = new StringBuilder();
+        transactionsString.append("START_OF_TRANSACTIONS");
+        List<Transaction> userTransactions = server.transactionLedger.getUserTransactions(username);
+
+        for (int t = 0; t < userTransactions.size(); t++) {
+            transactionsString.append(userTransactions.get(t).toString()).append("\\n");
+        }
+
+        sendMessage(transactionsString.toString());
     }
 }
