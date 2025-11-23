@@ -86,7 +86,7 @@ public class AdminMenu {
         }
     }
 
-    private void adjustUserBalance() {
+    void adjustUserBalance() {
         System.out.print("Enter username you wish to adjust balance for: ");
         String user = scanner.nextLine();
 
@@ -124,7 +124,7 @@ public class AdminMenu {
         }
     }
 
-    private void transferBetweenUsers() {
+    void transferBetweenUsers() {
         System.out.print("Enter username you wish to transfer money from: ");
         String fromUser = scanner.nextLine();
 
@@ -155,17 +155,17 @@ public class AdminMenu {
         }
     }
 
-    private void changeInterestRate() {
+    void changeInterestRate() {
         bankServer.interestRate = readDouble("Enter new interest rate (current is " + bankServer.interestRate + "): ");
         bankServer.interestSchedule();
     }
 
-    private void changeInterestPeriod() {
+    void changeInterestPeriod() {
         bankServer.interestPeriod = (long) readDouble("Enter new interest period in seconds (current is " + bankServer.interestPeriod + "): ");
         bankServer.interestSchedule();
     }
 
-    private void showLogs() {
+    void showLogs() {
         System.out.println("\n===== SERVER LOGS =====");
 
         if (!bankServer.serverLogs.isEmpty()) {
