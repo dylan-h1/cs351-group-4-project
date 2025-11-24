@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,7 +34,7 @@ public class AdminTest {
     }
 
     @Test
-    public void viewNoOnlineUsers() throws Exception {
+    public void viewNoOnlineUsers() {
         bankServer.onlineUsers = null;
 
         outContent.reset();
@@ -46,7 +45,7 @@ public class AdminTest {
     }
 
     @Test
-    public void viewOnlineUsers() throws Exception {
+    public void viewOnlineUsers() {
         outContent.reset();
 
         ClientHandler user1 = new ClientHandler(new Socket(), bankServer);
@@ -62,7 +61,7 @@ public class AdminTest {
     }
 
     @Test
-    public void adjustUserBalance() throws Exception {
+    public void adjustUserBalance() {
         bankServer.accounts.put("alice", new Account("alice", "pass"));
         String fakeInput = "alice\nadd\n200.0\n";
         System.setIn(new java.io.ByteArrayInputStream(fakeInput.getBytes()));
@@ -72,7 +71,7 @@ public class AdminTest {
     }
 
     @Test
-    public void transferBetweenUsers() throws Exception {
+    public void transferBetweenUsers() {
         bankServer.accounts.put("alice", new Account("alice", "pass"));
         bankServer.accounts.put("bob", new Account("bob", "word"));
         String fakeInput = "alice\nbob\n300.0\n";
@@ -84,7 +83,7 @@ public class AdminTest {
     }
 
     @Test
-    public void setInterestRate() throws Exception {
+    public void setInterestRate() {
         String fakeInput = 2.5 + "\n";
         System.setIn(new java.io.ByteArrayInputStream(fakeInput.getBytes()));
         AdminMenu adminMenu = new AdminMenu(bankServer);
@@ -93,7 +92,7 @@ public class AdminTest {
     }
 
     @Test
-    public void setInterestPeriod() throws Exception {
+    public void setInterestPeriod() {
         String fakeInput = 30 + "\n";
         System.setIn(new java.io.ByteArrayInputStream(fakeInput.getBytes()));
         AdminMenu adminMenu = new AdminMenu(bankServer);
@@ -102,7 +101,7 @@ public class AdminTest {
     }
 
     @Test
-    public void showLogs() throws Exception {
+    public void showLogs() {
         outContent.reset();
         adminMenu.showLogs();
         String output = outContent.toString();
