@@ -123,7 +123,7 @@ public class BankServer implements Runnable {
             );
 
             notifyUser(account.username,
-                    String.format("[INTEREST] £%.2f interest applied. New balance: £%.2f",
+                    String.format("[" + LocalDateTime.now() + "] " + "[INTEREST] £%.2f interest applied. New balance: £%.2f",
                             interest,
                             account.getBalance()));
         }

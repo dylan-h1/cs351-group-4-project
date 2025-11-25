@@ -73,8 +73,7 @@ public class BankClient {
                     update = updated.replace("\\n", "\n");
                 }
 
-                if (update.startsWith("[INTEREST]") || update.startsWith("[TRANSFER]") || update.startsWith("[ADMIN]")) {
-                    // showing interest message and giving user choice to enter option in clean way
+                if (update.contains("[INTEREST]") || update.contains("[TRANSFER]") || update.contains("[ADMIN]")) {                    // showing interest message and giving user choice to enter option in clean way
                     System.out.println("\n\n" + update + "\n");
                     System.out.print("Enter your choice: ");
                 } else if (update.equals("SERVER_SHUTDOWN")) {
